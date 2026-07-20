@@ -1,0 +1,27 @@
+{
+  "name": "fork-sync",
+  "version": "0.1.5",
+  "bin": {
+    "fork-sync": "dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Alan0893/fork-sync.git"
+  },
+  "publishConfig": {
+    "@alan0893:registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs && node -e \"const f=require('fs');const p='dist/index.js';f.writeFileSync(p,'#!/usr/bin/env node\\n'+f.readFileSync(p));f.chmodSync(p,0o755)\"",
+    "dev": "tsup src/index.ts --format cjs --watch"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "simple-git": "^3.27.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0"
+  }
+}

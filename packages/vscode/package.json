@@ -1,0 +1,65 @@
+{
+  "name": "fork-sync-vscode",
+  "displayName": "Fork Sync",
+  "description": "Sync your fork with upstream in one click",
+  "version": "0.1.0",
+  "publisher": "Alan0893",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["SCM Providers"],
+  "activationEvents": [
+    "workspaceContains:.git"
+  ],
+  "main": "dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "forkSync.sync",
+        "title": "Fork Sync: Sync with Upstream"
+      },
+      {
+        "command": "forkSync.status",
+        "title": "Fork Sync: Show Status"
+      },
+      {
+        "command": "forkSync.setup",
+        "title": "Fork Sync: Set Upstream"
+      }
+    ],
+    "configuration": {
+      "title": "Fork Sync",
+      "properties": {
+        "forkSync.strategy": {
+          "type": "string",
+          "default": "rebase",
+          "enum": ["rebase", "merge"],
+          "description": "Default sync strategy"
+        },
+        "forkSync.defaultBranch": {
+          "type": "string",
+          "default": "main",
+          "description": "Default upstream branch to sync with"
+        },
+        "forkSync.autoPush": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically push after syncing"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "dev": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --watch",
+    "package": "vsce package"
+  },
+  "dependencies": {
+    "@fork-sync/core": "*"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.0"
+  }
+}

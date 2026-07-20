@@ -1,0 +1,56 @@
+name: Publish Package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/cli/package.json'
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - run: npm install
+      - run: npm run build -w packages/core
+      - run: npm run build -w packages/cli
+      - run: cp README.md packages/cli/README.md
+      - uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          package: packages/cli/package.json
+
+  publish-gpr:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+      - run: npm install
+      - run: npm run build -w packages/core
+      - run: npm run build -w packages/cli
+      - run: cp README.md packages/cli/README.md
+      - name: Scope package name for GitHub Packages
+        working-directory: packages/cli
+        run: |
+          node -e "
+            const pkg = require('./package.json');
+            pkg.name = '@alan0893/fork-sync';
+            require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+      - name: Publish to GitHub Packages
+        working-directory: packages/cli
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
