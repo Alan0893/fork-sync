@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { createGit, sync, getStatus, setupUpstream } from '@fork-sync/core';
+import { createGit, sync, getStatus, setupUpstream, detectUpstream } from '@fork-sync/core';
 
 const program = new Command();
 
@@ -18,11 +18,19 @@ program
   .action(async (opts) => {
     const git = createGit();
     try {
+      const remotes = await git.getRemotes(true);
+      const hadUpstream = remotes.some((r) => r.name === 'upstream');
+
       const result = await sync(git, {
         branch: opts.branch,
         strategy: opts.strategy,
         push: opts.push,
       });
+
+      if (!hadUpstream) {
+        const { url } = await detectUpstream(git);
+        console.log(chalk.blue('ℹ'), `Auto-detected upstream: ${chalk.cyan(url)}`);
+      }
 
       if (result.status === 'success') {
         console.log(chalk.green('✓'), result.message);
